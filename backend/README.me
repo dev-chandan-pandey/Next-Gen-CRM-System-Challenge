@@ -1,0 +1,54 @@
+# NextGen CRM - Backend (Express + Prisma + Socket.io)
+
+## Requirements
+- Node.js 18+
+- PostgreSQL (local or remote)
+- npm
+
+## Setup
+1. Clone repo
+2. Copy env: `cp .env.example .env` and edit `DATABASE_URL`, `JWT_SECRET`, etc.
+3. Install:
+   npm install
+
+4. Generate Prisma client:
+   npx prisma generate
+
+5. Run migration (creates tables):
+   npx prisma migrate dev --name init
+
+6. Seed admin user:
+   npm run seed
+   (or set SEED_ADMIN_EMAIL/PASSWORD in .env then run npm run seed)
+
+7. Start server:
+   npm run dev
+   Server -> http://localhost:5000
+
+## API endpoints
+- POST /api/v1/auth/register {name, email, password, role?}
+- POST /api/v1/auth/login {email, password}
+- GET /api/v1/auth/me Authorization: Bearer <token>
+
+- GET /api/v1/leads
+- POST /api/v1/leads (Auth required)
+- GET /api/v1/leads/:id
+- PUT /api/v1/leads/:id (Auth required)
+- DELETE /api/v1/leads/:id (Auth required)
+- POST /api/v1/leads/:id/activities (Auth required)
+
+## WebSocket
+Connect to Socket.io server at `ws://localhost:5000`. Join global room by emitting `presence:join`. Server will emit:
+- `notification:new_lead` when a lead is created
+- `notification:lead_updated` when a lead is updated
+
+## Tests
+Start the server (`npm run dev`) in one terminal. Then run:
+  npm test
+
+## Next steps I can do for you (ask me to proceed):
+- Add more robust tests (Jest+Supertest) that programmatically start/stop the app
+- Add role-protected user management endpoints
+- Add email notifications (nodemailer) and integration with socket notifications
+- Add Docker Compose file
+- Implement frontend scaffold (React + Redux Toolkit + Socket.io-client)
