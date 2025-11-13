@@ -1,0 +1,39 @@
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nextgencrm
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context:  ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://nextgencrm_db_user:Bj40Gk5wUIiq0dVBK7w8QTyypmek6beS@dpg-d4arsve3jp1c73ebdfg0-a.oregon-postgres.render.com/nextgencrm_db?schema=public
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend2
+      dockerfile: Dockerfile
+    env_file:
+      - frontend2/.env
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
