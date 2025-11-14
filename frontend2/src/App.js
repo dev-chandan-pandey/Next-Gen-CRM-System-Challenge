@@ -17,6 +17,7 @@ const API_WS = process.env.REACT_APP_WS_URL || 'http://localhost:5000';
 function App() {
   const dispatch = useDispatch();
   const token = useSelector((s) => s.auth.token);
+  const user = useSelector(s => s.auth.user);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,9 +59,14 @@ function App() {
 
   return (
     <div style={{ padding: 20 }}>
-      <nav style={{ marginBottom: 20 }}>
+      {/* <nav style={{ marginBottom: 20 }}>
         <Link to="/">Home</Link> | <Link to="/dashboard">Dashboard</Link> | <Link to="/leads">Leads</Link> | <Link to="/login">Login</Link>
-      </nav>
+      </nav> */}
+      <nav style={{ marginBottom: 20 }}>
+  <Link to="/">Home</Link> | <Link to="/dashboard">Dashboard</Link> | <Link to="/leads">Leads</Link>
+  {user && user.role === 'ADMIN' && <> | <Link to="/admin/users">Admin Users</Link></>}
+  {!user ? <> | <Link to="/login">Login</Link></> : <> | <button onClick={() => { dispatch(logout()); navigate('/'); }}>Logout</button></>}
+</nav>
       <Routes>
         <Route path="/" element={<div>Welcome to NextGen CRM</div>} />
         <Route path="/login" element={<Login />} />

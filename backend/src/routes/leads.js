@@ -162,6 +162,9 @@ const prisma = require('../prismaClient');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { z } = require('zod');
 const { sendMail } = require('../services/mail');
+const { getNextSalesUser } = require('../utils/assignment');
+const { sendSlackMessage } = require('../services/slack');
+const { pushLeadToHubSpot } = require('../services/hubspot');
 const router = express.Router();
 
 // Apply optionalAuth globally to allow public read when no token provided
@@ -222,6 +225,14 @@ router.post('/', requireAuth, async (req, res) => {
     if (!parse.success) return res.status(400).json({ error: parse.error.errors });
 
     const { name, email, phone, status, ownerId, source, value } = parse.data;
+      // Auto-assign if owner missing and AUTO_ASSIGN_ROTATION enabled
+    if (!ownerId && (process.env.AUTO_ASSIGN_ROTATION || 'true') === 'true') {
+      const next = await getNextSalesUser();
+      if (next) {
+        ownerId = next.id;
+        console.log('Auto-assigned lead to user', next.email);
+      }
+    }
     const lead = await prisma.lead.create({
       data: {
         name,
@@ -235,22 +246,44 @@ router.post('/', requireAuth, async (req, res) => {
       include: { owner: true }
     });
  // ✅ Send notification email to owner
-    const owner = lead.owner;
+    // const owner = lead.owner;
     // after lead created:
-if (owner && owner.email) {
-  const preview = await sendMail({
-    to: owner.email,
-    subject: `New Lead Assigned: ${lead.name}`,
-    text: `A new lead "${lead.name}" has been assigned to you.`,
-    html: `<p>A new lead "<b>${lead.name}</b>" has been assigned to you.</p>`
-  });
-  // optionally include preview link in response (dev)
-  console.log('email preview url', preview);
-}
+// if (owner && owner.email) {
+//   const preview = await sendMail({
+//     to: owner.email,
+//     subject: `New Lead Assigned: ${lead.name}`,
+//     text: `A new lead "${lead.name}" has been assigned to you.`,
+//     html: `<p>A new lead "<b>${lead.name}</b>" has been assigned to you.</p>`
+//   });
+//   // optionally include preview link in response (dev)
+//   console.log('email preview url', preview);
+// }
     
     // emit notification
     const io = req.app.get('io');
     if (io) io.to('global').emit('notification:new_lead', { lead });
+   // Send Slack notification (if configured)
+    try {
+      const text = `*New Lead:* ${lead.name}\n*Status:* ${lead.status}\n*Owner:* ${lead.owner?.name || 'unassigned'}\n*Email:* ${lead.email || 'N/A'}`;
+      await sendSlackMessage(text);
+    } catch (err) { console.error('Slack notify failed', err); }
+     // Send email to owner (if owner has email)
+    try {
+      if (lead.owner && lead.owner.email) {
+        const preview = await sendMail({
+          to: lead.owner.email,
+          subject: `New Lead Assigned: ${lead.name}`,
+          text: `A new lead "${lead.name}" has been assigned to you.`,
+          html: `<p>A new lead "<b>${lead.name}</b>" has been assigned to you.</p>`
+        });
+        if (preview) console.log('Email preview URL', preview);
+      }
+    } catch (err) { console.error('Email send failed', err); }
+
+     // Push to HubSpot (if configured)
+    try {
+      await pushLeadToHubSpot(lead);
+    } catch (err) { console.error('HubSpot push failed', err); }
 
     res.status(201).json({ lead });
   } catch (err) {
