@@ -65,3 +65,20 @@ model Activity {
   meta      Json?
   createdAt DateTime     @default(now())
 }
+// Add to prisma/schema.prisma (append to the end)
+model Meta {
+  id     Int    @id @default(1)
+  key    String @unique
+  value  String
+  // simple key-value storage; we will use key='rotation_index' to persist last index
+}
+
+model HubSpotIntegration {
+  id             Int      @id @default(autoincrement())
+  accessToken    String
+  refreshToken   String?
+  expiresAt      DateTime? // expiry time for access token
+  scope          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

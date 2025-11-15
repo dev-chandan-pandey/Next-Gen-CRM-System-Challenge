@@ -59,6 +59,8 @@ function App() {
 
   return (
     <div style={{ padding: 20 }}>
+     
+
       {/* <nav style={{ marginBottom: 20 }}>
         <Link to="/">Home</Link> | <Link to="/dashboard">Dashboard</Link> | <Link to="/leads">Leads</Link> | <Link to="/login">Login</Link>
       </nav> */}
