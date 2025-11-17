@@ -11,6 +11,7 @@ import io from 'socket.io-client';
 import { addLeadRealtime } from './store/slices/leadsSlice';
 import CreateLead from './pages/CreateLead';
 import AdminUsers from './pages/AdminUsers';
+import AdminSlackMapping from './pages/AdminSlackMapping';
 
 const API_WS = process.env.REACT_APP_WS_URL || 'http://localhost:5000';
 
@@ -77,7 +78,7 @@ function App() {
       <Link className="text-sm text-gray-600" to="/dashboard">Dashboard</Link>
       <Link className="text-sm text-gray-600" to="/leads">Leads</Link>
       {user && user.role === 'ADMIN' && <Link className="text-sm text-gray-600" to="/admin/users">Users</Link>}
-      {user && user.role === 'ADMIN' && <Link className="text-sm text-gray-600" to="/admin/slack-mapping">Slack Mapping</Link>}
+      {user && user.role === 'ADMIN' && <Link className="text-sm text-gray-600" to="/AdminSlackMapping">Slack Mapping</Link>}
     </div>
     <div>
       {!user ? <Link className="text-sm text-blue-600" to="/login">Login</Link> : <button onClick={() => { dispatch(logout()); navigate('/'); }} className="text-sm text-red-500">Logout</button>}
@@ -93,6 +94,7 @@ function App() {
         <Route path="/leads/:id" element={<LeadDetail />} />
         <Route path="/leads/new" element={<CreateLead />} />
         <Route path="/admin/users" element={<AdminUsers />} />
+         <Route path="/AdminSlackMapping" element={<AdminSlackMapping />} />
       </Routes>
     </div>
   );
