@@ -32,14 +32,56 @@ router.get('/callback', async (req, res) => {
 
 // Webhook receiver (HubSpot can be configured to post to this URL)
 // You may need to configure verification / signing depending on HubSpot settings.
+// inside router.post('/webhook', express.json(), async (req, res) => { ... })
 router.post('/webhook', express.json(), async (req, res) => {
-  // For basic demo: log events and optionally process contact updates
-  console.log('HubSpot webhook payload', JSON.stringify(req.body).slice(0, 1000));
-  // Example: if contact updated, sync status back to lead by email
   try {
-    if (Array.isArray(req.body)) {
-      for (const ev of req.body) {
-        // implement event parsing based on your webhook subscription
+    // HubSpot webhook payload structure varies; common pattern:
+    // { subscriptionId, propertyName, eventId, objectId, changeSource, properties, ... }
+    // For demo, handle contact propertyChange events: find lead by email and update status/lifecycle
+    const events = Array.isArray(req.body) ? req.body : [req.body];
+
+    for (const ev of events) {
+      // For contacts v3, body shapes differ. We attempt to extract email or lifecycle stage.
+      // Example hubspot change: ev.objectId or ev.matchingProperties.email ...
+      // Best practice: inspect actual payload from HubSpot and adapt accordingly.
+      // Below: attempt to fetch contact by objectId via HubSpot API if integration exists.
+
+      if (ev.propertyName && ev.propertyName === 'lifecyclestage') {
+        // lifecycle changed
+        // find contact details (we may need to call HubSpot API)
+        const contactId = ev.objectId;
+        // load integration tokens
+        const integration = await prisma.hubSpotIntegration.findFirst();
+        if (!integration) continue;
+        let token = integration.accessToken;
+        // refresh if needed (reuse hubspot service logic)...
+        // For brevity: attempt to fetch contact and update lead with matching email
+        const { refreshTokens } = require('../../services/hubspot');
+        // fetch contact
+        const axios = require('axios');
+        try {
+          const resContact = await axios.get(`https://api.hubapi.com/crm/v3/objects/contacts/${contactId}?properties=email,lifecyclestage`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const props = resContact.data.properties || {};
+          const email = props.email;
+          const lifecycle = props.lifecyclestage;
+          if (email) {
+            // find lead by email and update mapping status if beneficial
+            const lead = await prisma.lead.findFirst({ where: { email } });
+            if (lead) {
+              // map lifecyclestage -> lead.status
+              let mappedStatus = null;
+              if (lifecycle === 'customer' || lifecycle === 'opportunity') mappedStatus = 'WON';
+              else if (lifecycle === 'lead' || lifecycle === 'subscriber') mappedStatus = 'CONTACTED';
+              if (mappedStatus) {
+                await prisma.lead.update({ where: { id: lead.id }, data: { status: mappedStatus } });
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Failed fetch contact from HubSpot', err?.response?.data || err.message);
+        }
       }
     }
   } catch (err) {

@@ -64,11 +64,27 @@ function App() {
       {/* <nav style={{ marginBottom: 20 }}>
         <Link to="/">Home</Link> | <Link to="/dashboard">Dashboard</Link> | <Link to="/leads">Leads</Link> | <Link to="/login">Login</Link>
       </nav> */}
-      <nav style={{ marginBottom: 20 }}>
+      {/* <nav style={{ marginBottom: 20 }}>
   <Link to="/">Home</Link> | <Link to="/dashboard">Dashboard</Link> | <Link to="/leads">Leads</Link>
   {user && user.role === 'ADMIN' && <> | <Link to="/admin/users">Admin Users</Link></>}
   {!user ? <> | <Link to="/login">Login</Link></> : <> | <button onClick={() => { dispatch(logout()); navigate('/'); }}>Logout</button></>}
+</nav> */}
+
+<nav className="bg-white shadow p-3 mb-6 rounded">
+  <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <div className="flex items-center space-x-4">
+      <Link className="font-bold text-lg" to="/">NextGen CRM</Link>
+      <Link className="text-sm text-gray-600" to="/dashboard">Dashboard</Link>
+      <Link className="text-sm text-gray-600" to="/leads">Leads</Link>
+      {user && user.role === 'ADMIN' && <Link className="text-sm text-gray-600" to="/admin/users">Users</Link>}
+      {user && user.role === 'ADMIN' && <Link className="text-sm text-gray-600" to="/admin/slack-mapping">Slack Mapping</Link>}
+    </div>
+    <div>
+      {!user ? <Link className="text-sm text-blue-600" to="/login">Login</Link> : <button onClick={() => { dispatch(logout()); navigate('/'); }} className="text-sm text-red-500">Logout</button>}
+    </div>
+  </div>
 </nav>
+
       <Routes>
         <Route path="/" element={<div>Welcome to NextGen CRM</div>} />
         <Route path="/login" element={<Login />} />

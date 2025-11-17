@@ -165,6 +165,8 @@ const { sendMail } = require('../services/mail');
 const { getNextSalesUser } = require('../utils/assignment');
 const { sendSlackMessage } = require('../services/slack');
 const { pushLeadToHubSpot } = require('../services/hubspot');
+const { sendLeadNotification } = require('../services/slack');
+
 const router = express.Router();
 
 // Apply optionalAuth globally to allow public read when no token provided
@@ -265,7 +267,8 @@ router.post('/', requireAuth, async (req, res) => {
    // Send Slack notification (if configured)
     try {
       const text = `*New Lead:* ${lead.name}\n*Status:* ${lead.status}\n*Owner:* ${lead.owner?.name || 'unassigned'}\n*Email:* ${lead.email || 'N/A'}`;
-      await sendSlackMessage(text);
+      // await sendSlackMessage(text);
+       await sendLeadNotification(text);
     } catch (err) { console.error('Slack notify failed', err); }
      // Send email to owner (if owner has email)
     try {

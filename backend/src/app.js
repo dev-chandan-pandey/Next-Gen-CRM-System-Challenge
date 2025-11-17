@@ -9,6 +9,8 @@ const userRoutes = require('./routes/users');
 const analyticsRoutes = require('./routes/analytics');
 const hubspotIntegrationRoutes = require('./routes/integrations/hubspot');
 const slackRoutes = require('./routes/integrations/slack');
+const slackMappingRoutes = require('./routes/admin/slackMapping');
+
 const app = express();
 
 app.use(cors());
@@ -21,6 +23,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/integrations/hubspot', hubspotIntegrationRoutes);
 app.use('/api/v1/integrations/slack', slackRoutes);
+app.use('/api/v1/admin/slack-mapping', slackMappingRoutes);
 app.get('/', (req, res) => res.json({ ok: true, msg: 'NextGen CRM backend' }));
 
 module.exports = app;
