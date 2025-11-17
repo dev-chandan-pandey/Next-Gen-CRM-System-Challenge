@@ -2,12 +2,10 @@
 
 # dependencies
 /node_modules
-
-
 .env
 **/.env
 *.env
-
+hubspot.config.yml
 # # testing
 # /coverage
 

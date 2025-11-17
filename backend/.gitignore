@@ -8,6 +8,7 @@
 .env
 **/.env
 *.env
+backend/hubspot.config.yml
 
 # # testing
 # /coverage
