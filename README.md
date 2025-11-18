@@ -380,3 +380,69 @@ Thank you for the opportunity,
 
 ---
 
+## ⚙️ Database Reset & Migrations (Docker)
+
+When running the backend inside Docker, Prisma commands must be executed **inside the backend container**. Follow these steps:
+
+### 1. Start Containers
+```bash
+docker-compose up --build
+```
+
+This will start the `db`, `backend`, and `frontend` services.
+
+---
+
+### 2. Run Migrations
+Apply migrations inside the backend container:
+
+```bash
+docker-compose exec backend npx prisma migrate deploy
+```
+
+If you’re still developing and want to reset completely:
+
+```bash
+docker-compose exec backend npx prisma migrate reset --force
+```
+
+---
+
+### 3. Seed Database
+Run the seed script inside the backend container:
+
+```bash
+docker-compose exec backend npm run seed
+```
+
+---
+
+### 4. Open a Shell Inside Backend (Optional)
+If you want to run multiple commands interactively:
+
+```bash
+docker-compose exec backend sh
+```
+
+Then inside the container you can run:
+```bash
+npx prisma migrate reset --force
+npm run seed
+```
+
+---
+
+### 5. Connect Directly to Postgres (Optional)
+To connect to the database container:
+
+```bash
+docker-compose exec db psql -U postgres -d nextgencrm
+```
+
+---
+
+✅ With these commands, you can reset, migrate, and seed your database entirely inside Docker without touching your local environment.
+
+---
+
+
