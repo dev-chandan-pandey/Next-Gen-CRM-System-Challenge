@@ -132,3 +132,5 @@ Emails: nodemailer with Ethereal used by default — preview URLs printed in bac
 Docker: Dockerfile (backend, frontend) and docker-compose.yml included.
 
 Tests: programmatic server tests for auth & leads — use dedicated DB.
+# 3️⃣ Reset DB inside backend container (drops + recreates schema + seeds if configured)
+docker-compose exec backend sh -c "npx prisma migrate reset --force"
