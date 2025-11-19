@@ -1,17 +1,39 @@
-Great — here is **everything you need for a polished assignment submission**:
+Exactly 👍 — your seed script creates an **admin user** with either values from environment variables (`SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`) or defaults (`admin@example.com` / `Admin@123`).  
 
-✔ Full **README.md** (copy-paste directly into your GitHub repo)
-✔ **Submission checklist** (what to verify before submitting)
-✔ **Professional submission email/message** to send to the company
-
-This will help you stand out and present the project cleanly and professionally.
+**how to log in after seeding**.
 
 ---
 
-# ✅ PART 1 — FINAL `README.md` (FULL, COPY–PASTE READY)
+## 🔑 Admin Login After Seeding
 
-Below is the full Markdown. **Copy everything from here ↓ into your repository `README.md`.**
+When you run the seed command inside Docker:
 
+```bash
+docker-compose exec backend npm run seed
+```
+
+an **admin user** is created in the database.
+
+- If you set environment variables in `backend/.env`:
+  ```env
+  SEED_ADMIN_EMAIL=your-admin@example.com
+  SEED_ADMIN_PASSWORD=YourSecurePassword123
+  ```
+  then those values will be used.
+
+- If no environment variables are set, the defaults are:
+  ```
+  Email: admin@example.com
+  Password: Admin@123
+  ```
+
+---
+
+### 🖥️ How to Log In
+- Open the frontend at [http://localhost:3000](http://localhost:3000)  
+- Use the seeded admin credentials to log in:
+  - **Email:** from `SEED_ADMIN_EMAIL` (or `admin@example.com` by default)  
+  - **Password:** from `SEED_ADMIN_PASSWORD` (or `Admin@123` by default)  
 ---
 
 # Next-Gen CRM System Challenge — Masters’ Union Assessment
