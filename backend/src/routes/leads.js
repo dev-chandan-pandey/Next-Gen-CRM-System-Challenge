@@ -344,13 +344,28 @@ router.put('/:id', requireAuth, async (req, res) => {
 
 // Delete
 router.delete('/:id', requireAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ error: 'Invalid lead id' });
+
+  // Optional: only ADMIN/MANAGER/owner can delete - adjust as needed
+  // if (req.user.role !== 'ADMIN' && req.user.role !== 'MANAGER') { ... }
+
   try {
-    const id = Number(req.params.id);
-    await prisma.lead.delete({ where: { id } });
-    res.json({ ok: true });
+    // Use a transaction to remove dependent activities first, then the lead
+    await prisma.$transaction([
+      prisma.activity.deleteMany({ where: { leadId: id } }),
+      prisma.lead.delete({ where: { id } })
+    ]);
+
+    // Emit socket event that the lead was removed (optional)
+    const io = req.app.get('io');
+    if (io) io.to('global').emit('notification:lead_deleted', { id });
+
+    return res.status(204).send();
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Failed to delete lead', err);
+    // Provide a helpful response for common DB constraint error
+    return res.status(500).json({ error: 'Failed to delete lead', details: err.message || String(err) });
   }
 });
 
