@@ -1,17 +1,39 @@
-Great — here is **everything you need for a polished assignment submission**:
+Exactly 👍 — your seed script creates an **admin user** with either values from environment variables (`SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`) or defaults (`admin@example.com` / `Admin@123`).  
 
-✔ Full **README.md** (copy-paste directly into your GitHub repo)
-✔ **Submission checklist** (what to verify before submitting)
-✔ **Professional submission email/message** to send to the company
-
-This will help you stand out and present the project cleanly and professionally.
+**how to log in after seeding**.
 
 ---
 
-# ✅ PART 1 — FINAL `README.md` (FULL, COPY–PASTE READY)
+## 🔑 Admin Login After Seeding
 
-Below is the full Markdown. **Copy everything from here ↓ into your repository `README.md`.**
+When you run the seed command inside Docker:
 
+```bash
+docker-compose exec backend npm run seed
+```
+
+an **admin user** is created in the database.
+
+- If you set environment variables in `backend/.env`:
+  ```env
+  SEED_ADMIN_EMAIL=your-admin@example.com
+  SEED_ADMIN_PASSWORD=YourSecurePassword123
+  ```
+  then those values will be used.
+
+- If no environment variables are set, the defaults are:
+  ```
+  Email: admin@example.com
+  Password: Admin@123
+  ```
+
+---
+
+### 🖥️ How to Log In
+- Open the frontend at [http://localhost:3000](http://localhost:3000)  
+- Use the seeded admin credentials to log in:
+  - **Email:** from `SEED_ADMIN_EMAIL` (or `admin@example.com` by default)  
+  - **Password:** from `SEED_ADMIN_PASSWORD` (or `Admin@123` by default)  
 ---
 
 # Next-Gen CRM System Challenge — Masters’ Union Assessment
@@ -379,4 +401,163 @@ Thank you for the opportunity,
 **Chandan Pandey**
 
 ---
+
+## ⚙️ Database Reset & Migrations (Docker)
+
+When running the backend inside Docker, Prisma commands must be executed **inside the backend container**. Follow these steps:
+
+### 1. Start Containers
+```bash
+docker-compose up --build
+```
+
+This will start the `db`, `backend`, and `frontend` services.
+
+---
+
+### 2. Run Migrations
+Apply migrations inside the backend container:
+
+```bash
+docker-compose exec backend npx prisma migrate deploy
+```
+
+If you’re still developing and want to reset completely:
+
+```bash
+docker-compose exec backend npx prisma migrate reset --force
+```
+
+---
+
+### 3. Seed Database
+Run the seed script inside the backend container:
+
+```bash
+docker-compose exec backend npm run seed
+```
+
+---
+
+### 4. Open a Shell Inside Backend (Optional)
+If you want to run multiple commands interactively:
+
+```bash
+docker-compose exec backend sh
+```
+
+Then inside the container you can run:
+```bash
+npx prisma migrate reset --force
+npm run seed
+```
+
+---
+
+### 5. Connect Directly to Postgres (Optional)
+To connect to the database container:
+
+```bash
+docker-compose exec db psql -U postgres -d nextgencrm
+```
+
+---
+
+✅ With these commands, you can reset, migrate, and seed your database entirely inside Docker without touching your local environment.
+
+---
+Perfect — since you want to **use only Docker** and run all Prisma commands inside the container, here’s a complete **README section** you can copy‑paste. It explains both how to **enter the backend container** and how to run your scripts (`reset`, `migrate`, `generate`, `seed`) using Docker.
+
+---
+
+# 🚀 Quick Start (Docker Only)
+
+This project runs entirely inside Docker using **Docker Compose**.  
+Services:
+- **db** → Postgres database  
+- **backend** → Express + Prisma API  
+- **frontend** → React app served via Nginx  
+
+---
+
+## 1. Start Containers
+```bash
+docker-compose up --build
+```
+
+This will start all services:
+- Database on port **5432**
+- Backend API on port **5000**
+- Frontend on port **3000**
+
+---
+
+## 2. Enter Backend Container
+To run commands inside the backend container, open a shell:
+
+```bash
+docker-compose exec backend sh
+```
+
+Now you are inside the container. You can run any npm script defined in `package.json`.
+
+---
+
+## 3. Database Management (Prisma)
+
+Scripts available in `package.json`:
+
+```json
+"scripts": {
+  "prisma:reset": "npx prisma migrate reset",
+  "prisma:generate": "prisma generate",
+  "prisma:migrate": "prisma migrate dev --name init",
+  "seed": "node prisma/seed.js",
+  "dev": "nodemon src/server.js --watch src",
+  "start": "node src/server.js",
+  "test": "jest --runInBand"
+}
+```
+
+### Run Migrations
+```bash
+docker-compose exec backend npm run prisma:migrate
+```
+
+### Reset Database
+```bash
+docker-compose exec backend npm run prisma:reset -- --force
+```
+
+### Generate Prisma Client
+```bash
+docker-compose exec backend npm run prisma:generate
+```
+
+### Seed Database
+```bash
+docker-compose exec backend npm run seed
+```
+
+---
+
+## 4. One‑liner Quick Reset (Reset + Seed)
+For convenience, you can run reset and seed together:
+
+```bash
+docker-compose exec backend sh -c "npm run prisma:reset -- --force && npm run seed"
+```
+
+---
+
+## 5. Access the App
+- Frontend → [http://localhost:3000](http://localhost:3000)  
+- Backend API → [http://localhost:5000](http://localhost:5000)  
+
+---
+
+✅ With these commands, you can manage **Prisma migrations, resets, and seeding entirely inside Docker**. No local setup required — everything runs inside containers.
+
+---
+
 
