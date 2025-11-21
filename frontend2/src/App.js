@@ -12,7 +12,7 @@ import { addLeadRealtime } from './store/slices/leadsSlice';
 import CreateLead from './pages/CreateLead';
 import AdminUsers from './pages/AdminUsers';
 import AdminSlackMapping from './pages/AdminSlackMapping';
-
+import EditLead from './pages/EditLead';
 const API_WS = process.env.REACT_APP_WS_URL || 'http://localhost:5000';
 
 function App() {
@@ -95,6 +95,7 @@ function App() {
         <Route path="/leads/new" element={<CreateLead />} />
         <Route path="/admin/users" element={<AdminUsers />} />
          <Route path="/AdminSlackMapping" element={<AdminSlackMapping />} />
+         <Route path="/leads/:id/edit" element={<EditLead />} />
       </Routes>
     </div>
   );
